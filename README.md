@@ -1,0 +1,1 @@
+# Ocena_jakosci_struktur_przestrzennych
