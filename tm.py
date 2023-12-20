@@ -1,44 +1,49 @@
-from Bio.PDB import PDBParser
-
-#slownik z przybliżonymi promieniami van der Waalsa
-vdw_radii = {
-    "H": 1.20,
-    "C": 1.70,
-    "N": 1.55,
-    "O": 1.52,
-    "S": 1.85,
-    "P": 1.90,
-}
-
+from Bio.PDB import *
 
 def calculate_clash_score(pdb_file):
-    parser = PDBParser(QUIET=True)
-    structure = parser.get_structure("structure", pdb_file)
+    parser = PDBParser()
+    structure = parser.get_structure("my_structure", pdb_file)
 
-    clash_score = 0
+    clash_count = 0
+    total_atoms = 0
+
+    vdw_radii = {
+        "H": 1.20,
+        "C": 1.70,
+        "N": 1.55,
+        "O": 1.52,
+        "S": 1.85,
+        "P": 1.90,
+    }
 
     for model in structure:
         for chain in model:
+            ns = NeighborSearch(list(chain.get_atoms()))
             for residue in chain:
-                for atom in residue:
-                    atom_name = atom.get_id()[0]
-                    vdw_radius = vdw_radii.get(atom_name, 1.5)  # Domyślny promień 1.5 A
+                atoms_to_check = [atom for atom in residue.get_atoms() if atom.element in vdw_radii]
 
-                    #promień clash to promień + 0.4A (r)
-                    clash_radius = vdw_radius + 0.4
+                for atom in atoms_to_check:
+                    total_atoms += 1
+                    atom_coord = atom.get_coord()
 
-                    for other_model in structure:
-                        for other_chain in other_model:
-                            for other_residue in other_chain:
-                                for other_atom in other_residue:
-                                    if atom != other_atom:
-                                        distance = atom - other_atom
-                                        if distance < clash_radius:
-                                            clash_score += 1
+                    close_atoms = ns.search(atom_coord, vdw_radii[atom.element])
+                    for close_atom in close_atoms:
+                        if close_atom.get_parent().get_full_id() != residue.get_full_id() and close_atom.element in vdw_radii:
+                            vdw_sum = vdw_radii.get(atom.element) + vdw_radii.get(close_atom.element)
+                            atom_distance = atom - close_atom
 
-    return clash_score
+                            if atom_distance < vdw_sum - 0.4:
+                                clash_count += 1
+
+    return 1000 * (clash_count / total_atoms)
+
+# Przykładowe użycie
+pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/R1107_reference.pdb"  # Zmień na właściwą ścieżkę
+#pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/4.pdb"  # Zmień na właściwą ścieżkę
+#pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/2.pdb"  # Zmień na właściwą ścieżkę
+#pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/test.txt"  # Zmień na właściwą ścieżkę
 
 
-pdb_filename = "R1107_reference.pdb"
-score = calculate_clash_score(pdb_filename)
-print("Clash score dla pliku: ", pdb_filename, score)
+
+score = calculate_clash_score(pdb_file_path)
+print(f"Clash score: {score}")
