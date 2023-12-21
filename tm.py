@@ -38,10 +38,10 @@ def calculate_clash_score(pdb_file):
     return 1000 * (clash_count / total_atoms)
 
 # Przykładowe użycie
-pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/R1107_reference.pdb"  # Zmień na właściwą ścieżkę
-#pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/4.pdb"  # Zmień na właściwą ścieżkę
-#pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/2.pdb"  # Zmień na właściwą ścieżkę
-#pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/test.txt"  # Zmień na właściwą ścieżkę
+pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/R1107_reference.pdb"
+#pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/4.pdb"
+#pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/2.pdb"
+#pdb_file_path = "C:/Users/karol/PycharmProjects/RSMD/test.txt"
 
 
 
